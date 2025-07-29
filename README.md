@@ -1,7 +1,6 @@
 # Boost URL Shortener
 
-A fully‑typed TypeScript microservice that shortens URLs, stores them in Postgres, and redirects visitors.  
-Built as the take‑home assignment for the **Lead Engineer** role at Boost Payment Solutions.
+A fully‑typed TypeScript microservice that shortens URLs, stores them in Postgres, and redirects visitors.
 
 ---
 
