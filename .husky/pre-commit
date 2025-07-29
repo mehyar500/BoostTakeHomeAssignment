@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Stop commit on lint or test failure
+echo "Running ESLint on staged .ts/.tsx…" 
+
+npx lint-staged
+
+# If lint is OK, launch the test suite
+npm test

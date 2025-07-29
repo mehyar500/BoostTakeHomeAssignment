@@ -1,0 +1,57 @@
+{
+  "name": "boosttakehomeassignment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development nodemon --watch src --exec ts-node src/server.ts",
+    "build": "tsc -p .",
+    "start": "node dist/server.js",
+    "test": "jest --runInBand --detectOpenHandles",
+    "prisma:generate": "prisma generate",
+    "prepare": "husky install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/ioredis": "^4.28.10",
+    "@types/jest": "^30.0.0",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^24.1.0",
+    "@types/swagger-ui-express": "^4.1.8",
+    "cross-env": "^10.0.0",
+    "eslint": "^9.32.0",
+    "husky": "^8.0.0",
+    "jest": "^30.0.5",
+    "lint-staged": "^16.1.2",
+    "nodemon": "^3.1.10",
+    "openapi-typescript": "^7.8.0",
+    "prettier": "^3.6.2",
+    "supertest": "^7.1.4",
+    "swagger-jsdoc": "^6.2.8",
+    "ts-jest": "^29.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.13.0",
+    "@types/express": "^5.0.3",
+    "dotenv": "^17.2.1",
+    "express": "^4.21.2",
+    "express-async-errors": "^3.1.1",
+    "express-rate-limit": "^8.0.1",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.6.1",
+    "morgan": "^1.10.1",
+    "prisma": "^6.13.0",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^4.0.13"
+  },
+  "lint-staged": {
+    "\"*.{ts,tsx}\"": [
+      "\"eslint --fix\""
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+name: CI
+
+# ──────────── TRIGGERS ────────────
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+# Shared across jobs
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+# ──────────── JOB 1: TEST → BUILD → PUSH ────────────
+jobs:
+  test-build-push:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: shortener
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: [ "5432:5432" ]
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/shortener?schema=public
+      RATE_LIMIT_WINDOW: 60
+      RATE_LIMIT_MAX: 100
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run migrations
+        run: npx prisma migrate deploy --skip-seed
+
+      - run: npm test
+
+      - name: Build Docker image
+        run: docker build -t $REGISTRY/$IMAGE_NAME:${{ github.sha }} .
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image (sha tag)
+        run: docker push $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+
+      - name: Tag & push :latest (main only)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker tag $REGISTRY/$IMAG
+
+  deploy-prod:
+    needs: test-build-push
+    runs-on: ubuntu-latest
+    # environment: production
+    steps:
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
+
+      - name: Pull & restart compose stack
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_HOST }} <<'SSH'
+            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_PAT }}
+            cd /srv/boost-url-shortener
+            docker compose pull api && docker compose up -d --no-deps api
+            docker image prune -f
+          SSH

@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: shortener
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+  api:
+    build: .
+    env_file: .env.dev
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    command: node dist/server.js
+volumes:
+  pgdata:

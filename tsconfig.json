@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",              // enables ESM + `with { type: "json" }`
+    "moduleResolution": "node16",      // aligns with Node 20 behaviour
+    "target": "es2022",                // modern JS output
+    "rootDir": "src",
+    "outDir": "dist",
+    "resolveJsonModule": true,          // allows JSON imports
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+  }
+}
